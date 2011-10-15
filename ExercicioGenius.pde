@@ -4,16 +4,22 @@
 #define MAX_JOGADAS 5
 #define NUM_BOTOES 3
 #define INTERVALO_PISCA_LED 1000
+#define TIMEOUT 3000
+#define TEMPO_MINIMO_BOTAO 500
 
 //Configurações de hardware:
 #define LED_1 5
 #define LED_2 6
 #define LED_3 7
+#define BOTAO_1 8
+#define BOTAO_2 9
+#define BOTAO_3 10
 
 
 //Não mexa daqui para baixo!
 int jogadas[MAX_JOGADAS];
 int LEDS[NUM_BOTOES] = { LED_1, LED_2, LED_3 };
+int BOTOES[NUM_BOTOES] = { BOTAO_1, BOTAO_2, BOTAO_3 };
 
 void sorteiaJogadas() {
     randomSeed(analogRead(0));
@@ -35,6 +41,14 @@ void setup() {
     pinMode(LED_1, OUTPUT);
     pinMode(LED_2, OUTPUT);
     pinMode(LED_3, OUTPUT);
+    
+    pinMode(BOTAO_1, INPUT);
+    pinMode(BOTAO_2, INPUT);
+    pinMode(BOTAO_3, INPUT);
+
+    digitalWrite(BOTAO_1, HIGH);
+    digitalWrite(BOTAO_2, HIGH);
+    digitalWrite(BOTAO_3, HIGH);
 }
 
 void acendeLeds() {
@@ -67,8 +81,41 @@ void piscaLedsDeAcordoComAsJogadas(int numeroDeJogadas) {
     #endif
 }
 
+bool verificaBotao(int pino) {
+    #ifdef DEBUG
+    Serial.print("Verificando botão de pino ");
+    Serial.print(pino);
+    Serial.print(": ");
+    #endif
+    unsigned long int tempoInicial = millis();
+    int estadoBotao = digitalRead(pino);
+    while (estadoBotao && (millis() - tempoInicial) <= TIMEOUT) {
+        estadoBotao = digitalRead(pino);
+    }
+
+    #ifdef DEBUG
+    Serial.println(!estadoBotao);
+    #endif
+    return !estadoBotao;
+}
+
 bool verificaBotoes(int numeroDeJogadas) {
-    return false;
+    for (int i = 0; i < numeroDeJogadas; i++) {
+        int pino = BOTOES[jogadas[i]];
+        if (verificaBotao(pino)) {
+            #ifdef DEBUG
+            Serial.println("Botão verificado!");
+            #endif
+            digitalWrite(LEDS[jogadas[i]], HIGH);
+            while (!digitalRead(pino)) {}
+            delay(TEMPO_MINIMO_BOTAO);
+            digitalWrite(LEDS[jogadas[i]], LOW);
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
 }
 
 void piscaLeds() {
