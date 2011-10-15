@@ -1,7 +1,10 @@
 #define DEBUG
+
+//Configurações do jogo:
 #define MAX_JOGADAS 5
 #define NUM_BOTOES 3
 
+//Não mexa daqui para baixo!
 int jogadas[MAX_JOGADAS];
 
 void sorteiaJogadas() {
@@ -27,4 +30,15 @@ void loop() {
     Serial.println("Sorteando jogadas...");
     #endif
     sorteiaJogadas();
+
+    #ifdef DEBUG
+    Serial.println("Iniciando jogadas...");
+    #endif
+    for (int i = 1; i <= MAX_JOGADAS; i++) {
+        #ifdef DEBUG
+        Serial.print("  Piscando LEDs da jogada ");
+        Serial.print(i);
+        Serial.println("...");
+        #endif
+    }
 }
