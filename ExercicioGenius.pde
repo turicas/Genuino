@@ -44,14 +44,11 @@ void apagaLeds() {
 }
 
 void piscaLeds(int n) {
-    #ifdef DEBUG
     for (int i = 0; i < n; i++) {
+        #ifdef DEBUG
         Serial.print(jogadas[i]);
         Serial.print(" ");
-    }
-    Serial.println();
-    #endif
-    for (int i = 0; i < n; i++) {
+        #endif
         delay(INTERVALO_PISCA_LED);
         for (int j = 0; j < NUM_BOTOES; j++) {
             digitalWrite(LEDS[j], jogadas[i] == j);
@@ -59,6 +56,9 @@ void piscaLeds(int n) {
         delay(INTERVALO_PISCA_LED);
         apagaLeds();
     }
+    #ifdef DEBUG
+    Serial.println();
+    #endif
 }
 
 void loop() {
