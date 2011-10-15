@@ -37,14 +37,20 @@ void setup() {
     pinMode(LED_3, OUTPUT);
 }
 
+void acendeLeds() {
+    for (int j = 0; j < NUM_BOTOES; j++) {
+        digitalWrite(LEDS[j], HIGH);
+    }
+}
+
 void apagaLeds() {
     for (int j = 0; j < NUM_BOTOES; j++) {
         digitalWrite(LEDS[j], LOW);
     }
 }
 
-void piscaLeds(int n) {
-    for (int i = 0; i < n; i++) {
+void piscaLedsDeAcordoComAsJogadas(int numeroDeJogadas) {
+    for (int i = 0; i < numeroDeJogadas; i++) {
         #ifdef DEBUG
         Serial.print(jogadas[i]);
         Serial.print(" ");
@@ -61,6 +67,33 @@ void piscaLeds(int n) {
     #endif
 }
 
+bool verificaBotoes(int numeroDeJogadas) {
+    return false;
+}
+
+void piscaLeds() {
+    delay(INTERVALO_PISCA_LED);
+    acendeLeds();
+    delay(INTERVALO_PISCA_LED);
+    apagaLeds();
+}
+
+void perdeuJogo() {
+    #ifdef DEBUG
+    Serial.println("  Piscando todos os LEDs 1x...");
+    #endif
+    piscaLeds();
+}
+
+void ganhouJogo() {
+    #ifdef DEBUG
+    Serial.println("      Piscando todos os LEDs 3x...");
+    #endif
+    piscaLeds();
+    piscaLeds();
+    piscaLeds();
+}
+
 void loop() {
     #ifdef DEBUG
     delay(1000);
@@ -73,10 +106,33 @@ void loop() {
     #endif
     for (int i = 0; i < MAX_JOGADAS; i++) {
         #ifdef DEBUG
-        Serial.print("  Piscando LEDs da jogada ");
+        Serial.print("Jogada ");
         Serial.print(i + 1);
-        Serial.print(": ");
+        Serial.println(":");
+        Serial.print("  Piscando LEDs: ");
         #endif
-        piscaLeds(i + 1);
+        piscaLedsDeAcordoComAsJogadas(i + 1);
+
+        #ifdef DEBUG
+        Serial.println("  Verificando botões...");
+        #endif
+        if (verificaBotoes(i + 1)) {
+            #ifdef DEBUG
+            Serial.println("    Apertou os botões corretamente.");
+            #endif
+            if (i == MAX_JOGADAS - 1) {
+                #ifdef DEBUG
+                Serial.println("      Rodada final - ganhou!");
+                #endif
+                ganhouJogo();
+            }
+        }
+        else {
+            #ifdef DEBUG
+            Serial.println("    Botões apertados incorretamente - perdeu!");
+            #endif
+            perdeuJogo();
+            break;
+        }
     }
 }
